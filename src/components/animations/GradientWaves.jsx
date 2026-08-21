@@ -214,7 +214,9 @@ const GradientWaves = ({
       document.removeEventListener('visibilitychange', onVisibility);
       canvas.removeEventListener('pointermove', onPointerMove); canvas.removeEventListener('pointerleave', onPointerLeave);
       ctxMap.delete(container);
-      try { container.removeChild(canvas); } catch {}
+      if (container.contains(canvas)) {
+        container.removeChild(canvas);
+      }
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, []);

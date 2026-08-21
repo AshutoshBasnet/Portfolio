@@ -40,7 +40,7 @@ function ContactSection() {
       const result = await submitContact(form);
       setStatus({ type: 'success', message: result.message || 'Thank you! Your message has been sent.' });
       setForm({ name: '', email: '', message: '' });
-    } catch (err) {
+    } catch {
       setStatus({
         type: 'success',
         message: 'Thank you for reaching out! Your message has been noted.',
