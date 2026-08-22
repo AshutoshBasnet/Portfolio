@@ -12,17 +12,42 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
-app.use('/api/projects', projectsRouter);
-app.use('/api/contact', contactRouter);
+// API Router
+const apiRouter = express.Router();
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// Routes
+apiRouter.use('/projects', projectsRouter);
+apiRouter.use('/contact', contactRouter);
+
+// Health check endpoint
+apiRouter.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    environment: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+  });
 });
 
-// For local development
-if (process.env.NODE_ENV !== 'production') {
+// Root API discovery endpoint
+apiRouter.get('/', (req, res) => {
+  res.json({
+    name: 'Ashutosh Basnet Portfolio API',
+    status: 'online',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      projects: '/api/projects',
+      contact: '/api/contact (POST)',
+    },
+  });
+});
+
+// Mount router at both '/api' and '/' to ensure proper matching in both local and Vercel serverless environments
+app.use('/api', apiRouter);
+app.use('/', apiRouter);
+
+// For local standalone development (skipped when running on Vercel Serverless)
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
     console.log(`🚀 API server running on http://localhost:${PORT}`);
